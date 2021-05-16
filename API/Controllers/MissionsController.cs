@@ -1,32 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Application.Missions;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Persistense;
 
 namespace API.Controllers
 {
     public class MissionsController : BaseApiController
     {
-        private readonly DataContext _context;
-        public MissionsController(DataContext context)
-        {
-            _context = context;
-
-        }
 
         [HttpGet]
-        public async Task<ActionResult<List<Mission>>> GetMissions()
+        public async Task<ActionResult<List<Mission>>> GetMissions(CancellationToken cancellationToken)
         {
-            return await _context.Missions.ToListAsync();
+            return await Mediator.Send(new ListMissions.Query(), cancellationToken);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Mission>> GetMission(Guid id)
         {
-            return await _context.Missions.FindAsync(id);
+            return await Mediator.Send(new DetailsMission.Query{ Id = id });
         }
     }
 }
